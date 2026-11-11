@@ -1,10 +1,8 @@
-
 package br.org.edu.ifrn.LojaCarro.controllers;
 
 import br.org.edu.ifrn.LojaCarro.CarroException;
 import br.org.edu.ifrn.LojaCarro.model.Carro;
 import br.org.edu.ifrn.LojaCarro.services.CarroService;
-import br.org.edu.ifrn.LojaCarro.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +18,8 @@ public class CarroController {
     @Autowired
     private CarroService carroService;
 
-    @Autowired
-    private UsuarioService usuarioService;
-
     // Salvar carro (corrigido para POST)
-    @PostMapping("salvar")
+    @PostMapping("/salvar")
     public ResponseEntity<Carro> salvarCarro(@RequestBody Carro c) {
         Carro savedCarro = carroService.save(c);
         return ResponseEntity.ok(savedCarro);
@@ -56,6 +51,20 @@ public class CarroController {
     @GetMapping("/listarCarros")
     public ResponseEntity<List<Carro>> pesquisarTodosCarros() {
         List<Carro> carros = carroService.findAll();
+        return ResponseEntity.ok(carros);
+    }
+
+    // Pesquisar carros por marca
+    @GetMapping("/marca/{marca}")
+    public ResponseEntity<List<Carro>> pesquisarCarrosPorMarca(@PathVariable String marca) {
+        List<Carro> carros = carroService.findByMarca(marca);
+        return ResponseEntity.ok(carros);
+    }
+
+    // Pesquisar carros por situação
+    @GetMapping("/situacao/{situacao}")
+    public ResponseEntity<List<Carro>> pesquisarCarrosPorSituacao(@PathVariable String situacao) {
+        List<Carro> carros = carroService.findBySituacao(situacao);
         return ResponseEntity.ok(carros);
     }
 

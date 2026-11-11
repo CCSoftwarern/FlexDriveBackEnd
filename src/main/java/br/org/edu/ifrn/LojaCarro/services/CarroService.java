@@ -41,7 +41,7 @@ public class CarroService {
     // Novo método para deletar por ID
     public void deleteById(Long id) {
         if(id <= 0){
-            throw new CarroException("O ID do carro não pode ser negativo. ID fornecido: " + id);
+            throw new CarroException("O ID do carro deve ser maior que zero. ID fornecido: " + id);
         }
         carroRepository.deleteById(id);
     }
@@ -49,7 +49,7 @@ public class CarroService {
     // Novo método para pesquisar por ID
     public Optional<Carro> findById(Long id) {
         if(id <= 0){
-            throw new CarroException("O ID do carro não pode ser negativo. ID fornecido: " + id);
+            throw new CarroException("O ID do carro deve ser maior que zero. ID fornecido: " + id);
         }
         return carroRepository.findById(id);
     }
@@ -65,7 +65,10 @@ public class CarroService {
     }
 
     public Carro saveFromLegacy(String modelo, double preco) {
-        Carro carro = new Carro(modelo, LocalDate.now().getYear(), preco);
+        Carro carro = new Carro();
+        carro.setModelo(modelo);
+        carro.setAno(LocalDate.now().getYear());
+        carro.setPreco(preco);
         return save(carro);
     }
 
@@ -90,9 +93,16 @@ public class CarroService {
         if (!carroRepository.existsById(c.getId())) {
             throw new CarroException("Carro com ID " + c.getId() + " não encontrado para atualização.");
         }
-        validarModelo(c.getModelo());  // Valida o modelo antes de atualizar
+        validarModelo(c.getModelo());              // Valida o modelo antes de atualizar
         validarPreco(c.getPreco());
-        return carroRepository.save(c);  // Retorna o carro salvo para feedback
+        validarCor(c.getCor());
+        validarQuilometragem(c.getQuilometragem());
+        validarTipoCombustivel(c.getTipoCombustivel());
+        validarTipoTransmissao(c.getTipoTransmissao());
+        validarSituacao(c.getSituacao());
+        validarDescricao(c.getDescricao());
+        validarFotografiaPrincipal(c.getFotografiaPrincipal());
+        return carroRepository.save(c);            // Retorna o carro salvo para feedback
     }
 
     // Validação do modelo
@@ -111,9 +121,65 @@ public class CarroService {
         }
     }
 
+    private void validarCor(String cor) {
+        if (cor == null || cor.trim().isEmpty()) {
+            throw new CarroException("A cor do carro não pode estar vazia.");
+        }
+    }
+
+    private void validarQuilometragem(int quilometragem) {
+        if (quilometragem < 0) {
+            throw new CarroException("A quilometragem não pode ser negativa. Valor fornecido: " + quilometragem);
+        }
+    }
+
+    private void validarTipoCombustivel(String tipoCombustivel) {
+        if (tipoCombustivel == null || tipoCombustivel.trim().isEmpty()) {
+            throw new CarroException("O tipo de combustível não pode estar vazio.");
+        }
+    }
+
+    private void validarTipoTransmissao(String tipoTransmissao) {
+        if (tipoTransmissao == null || tipoTransmissao.trim().isEmpty()) {
+            throw new CarroException("O tipo de transmissão não pode estar vazio.");
+        }
+    }
+
+    private void validarSituacao(String situacao) {
+        if (situacao == null || situacao.trim().isEmpty()) {
+            throw new CarroException("A situação do veículo não pode estar vazia.");
+        }
+    }
+
+    private void validarDescricao(String descricao) {
+        if (descricao != null && descricao.length() > 1000) {
+            throw new CarroException("A descrição deve ter no máximo 1000 caracteres. Tamanho atual: " + descricao.length());
+        }
+    }
+
+    private void validarFotografiaPrincipal(String fotografiaPrincipal) {
+        if (fotografiaPrincipal != null && fotografiaPrincipal.length() > 255) {
+            throw new CarroException("O caminho da fotografia deve ter no máximo 255 caracteres. Tamanho atual: " + fotografiaPrincipal.length());
+        }
+    }
+
     private Carro localizarCarroPorModelo(String modelo) {
         validarModelo(modelo);
         return carroRepository.findFirstByModelo(modelo)
                 .orElseThrow(() -> new CarroException("Carro com modelo " + modelo + " não encontrado."));
+    }
+
+    public List<Carro> findByMarca(String marca) {
+        if (marca == null || marca.trim().isEmpty()) {
+            throw new CarroException("A marca não pode estar vazia.");
+        }
+        return carroRepository.findByMarcaIgnoreCase(marca.trim());
+    }
+
+    public List<Carro> findBySituacao(String situacao) {
+        if (situacao == null || situacao.trim().isEmpty()) {
+            throw new CarroException("A situação não pode estar vazia.");
+        }
+        return carroRepository.findBySituacaoIgnoreCase(situacao.trim());
     }
 }
