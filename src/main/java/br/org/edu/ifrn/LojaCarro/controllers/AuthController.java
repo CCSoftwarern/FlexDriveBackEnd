@@ -33,8 +33,8 @@ public class AuthController {
 
         Usuario u = new Usuario();
         u.setNome(req.nome().trim());
-        u.setSenha(passwordEncoder.encode(req.senha())); // BCrypt
-        u.setPerfil("CLIENTE");                          // cadastro público nunca é ADMIN
+        u.setSenha(passwordEncoder.encode(req.senha()));
+        u.setPerfil("CLIENTE");
         usuarioRepository.save(u);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Cliente cadastrado.");

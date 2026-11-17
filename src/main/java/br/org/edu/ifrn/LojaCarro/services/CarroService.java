@@ -38,7 +38,6 @@ public class CarroService {
         return savedCarro;
     }
 
-    // deletar por ID
     public void deleteById(Long id) {
         if(id <= 0){
             throw new CarroException("O ID do carro deve ser maior que zero. ID fornecido: " + id);
@@ -46,7 +45,6 @@ public class CarroService {
         carroRepository.deleteById(id);
     }
 
-    //  pesquisar por ID
     public Optional<Carro> findById(Long id) {
         if(id <= 0){
             throw new CarroException("O ID do carro deve ser maior que zero. ID fornecido: " + id);
@@ -54,7 +52,6 @@ public class CarroService {
         return carroRepository.findById(id);
     }
 
-    // listar todos os carros
     public List<Carro> findAll() {
         return carroRepository.findAll();
     }
@@ -104,13 +101,12 @@ public class CarroService {
         return carroRepository.save(c);
     }
 
-    // Validar o modelo
     private void validarModelo(String modelo) {
         if (modelo == null || modelo.trim().isEmpty()) {
             throw new CarroException("O modelo do carro não pode estar vazio.");
         }
-        if (modelo.length() >= 5) {
-            throw new CarroException("O modelo do carro deve ter menos de 5 caracteres. Tamanho atual: " + modelo.length());
+        if (modelo.length() > 60) {
+            throw new CarroException("O modelo do carro deve ter no máximo 60 caracteres. Tamanho atual: " + modelo.length());
         }
     }
 

@@ -1,6 +1,5 @@
 package br.org.edu.ifrn.LojaCarro.controllers;
 
-import br.org.edu.ifrn.LojaCarro.model.Carro;
 import br.org.edu.ifrn.LojaCarro.model.Usuario;
 import br.org.edu.ifrn.LojaCarro.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,6 @@ public class UsuarioController {
         return ResponseEntity.ok(savedCarro);
     }
 
-    // Deletar carro (por ID)
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
         usuarioService.deleteById(id);
@@ -43,7 +41,7 @@ public class UsuarioController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario u) {
-        u.setId(id);  // Define o ID no objeto
+        u.setId(id);
         Usuario updatedUsuario = usuarioService.update(u, id);
         return ResponseEntity.ok(updatedUsuario);
     }

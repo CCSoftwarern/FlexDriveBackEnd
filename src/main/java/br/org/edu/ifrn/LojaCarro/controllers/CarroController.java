@@ -1,21 +1,21 @@
 package br.org.edu.ifrn.LojaCarro.controllers;
+
 import br.org.edu.ifrn.LojaCarro.CarroException;
 import br.org.edu.ifrn.LojaCarro.model.Carro;
 import br.org.edu.ifrn.LojaCarro.services.CarroService;
-import io.jsonwebtoken.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/carro")
@@ -26,50 +26,43 @@ public class CarroController {
     @Autowired
     private CarroService carroService;
 
-    // Salvar carro
     @PostMapping("/salvar")
     public ResponseEntity<Carro> salvarCarro(@RequestBody Carro c) {
         Carro savedCarro = carroService.save(c);
         return ResponseEntity.ok(savedCarro);
     }
 
-    // Atualizar carro (por ID)
     @PutMapping("/{id}")
     public ResponseEntity<Carro> atualizarCarro(@PathVariable Long id, @RequestBody Carro c) {
-        c.setId(id);  // Define o ID no objeto
+        c.setId(id);
         Carro updatedCarro = carroService.update(c);
         return ResponseEntity.ok(updatedCarro);
     }
 
-    // Deletar carro (por ID)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCarro(@PathVariable Long id) {
         carroService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Pesquisar carro por ID
     @GetMapping("/{id}")
     public ResponseEntity<Carro> pesquisarCarroPorId(@PathVariable Long id) {
         Optional<Carro> carro = carroService.findById(id);
         return carro.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    // Pesquisar todos os carros
     @GetMapping("/listarCarros")
     public ResponseEntity<List<Carro>> pesquisarTodosCarros() {
         List<Carro> carros = carroService.findAll();
         return ResponseEntity.ok(carros);
     }
 
-    // Pesquisar carros por marca
     @GetMapping("/marca/{marca}")
     public ResponseEntity<List<Carro>> pesquisarCarrosPorMarca(@PathVariable String marca) {
         List<Carro> carros = carroService.findByMarca(marca);
         return ResponseEntity.ok(carros);
     }
 
-    // Pesquisar carros por situação
     @GetMapping("/situacao/{situacao}")
     public ResponseEntity<List<Carro>> pesquisarCarrosPorSituacao(@PathVariable String situacao) {
         List<Carro> carros = carroService.findBySituacao(situacao);
@@ -113,8 +106,6 @@ public class CarroController {
         }
     }
 
-
-    // para fazer upload da imagem
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImagem(@RequestParam("arquivo") MultipartFile arquivo) {
         if (arquivo.isEmpty()) {
@@ -124,7 +115,6 @@ public class CarroController {
         try {
             Path diretorioPath = Paths.get(diretorioUpload);
 
-            // Esta linha PRECISA estar dentro do try
             Files.createDirectories(diretorioPath);
 
             String nomeOriginal = arquivo.getOriginalFilename();
@@ -135,7 +125,7 @@ public class CarroController {
 
             return ResponseEntity.ok("Imagem salva com sucesso: " + nomeArquivo);
 
-        } catch (IOException | java.io.IOException e) {
+        } catch (IOException e) {
             return ResponseEntity.internalServerError().body("Erro ao salvar a imagem: " + e.getMessage());
         }
     }
