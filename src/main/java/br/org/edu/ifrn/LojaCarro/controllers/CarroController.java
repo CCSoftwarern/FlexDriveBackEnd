@@ -1,24 +1,32 @@
 package br.org.edu.ifrn.LojaCarro.controllers;
-
 import br.org.edu.ifrn.LojaCarro.CarroException;
 import br.org.edu.ifrn.LojaCarro.model.Carro;
 import br.org.edu.ifrn.LojaCarro.services.CarroService;
+import io.jsonwebtoken.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+
 
 @RestController
 @RequestMapping("/carro")
 public class CarroController {
 
+    private final String diretorioUpload = System.getProperty("user.dir") + "/uploads/";
+
     @Autowired
     private CarroService carroService;
 
-    // Salvar carro (corrigido para POST)
+    // Salvar carro
     @PostMapping("/salvar")
     public ResponseEntity<Carro> salvarCarro(@RequestBody Carro c) {
         Carro savedCarro = carroService.save(c);
@@ -104,4 +112,32 @@ public class CarroController {
             throw new CarroException("Preço inválido: " + preco);
         }
     }
+
+
+    // para fazer upload da imagem
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadImagem(@RequestParam("arquivo") MultipartFile arquivo) {
+        if (arquivo.isEmpty()) {
+            return ResponseEntity.badRequest().body("Por favor, selecione uma imagem.");
+        }
+
+        try {
+            Path diretorioPath = Paths.get(diretorioUpload);
+
+            // Esta linha PRECISA estar dentro do try
+            Files.createDirectories(diretorioPath);
+
+            String nomeOriginal = arquivo.getOriginalFilename();
+            String nomeArquivo = UUID.randomUUID().toString() + "_" + nomeOriginal;
+            Path caminhoArquivo = diretorioPath.resolve(nomeArquivo);
+
+            Files.copy(arquivo.getInputStream(), caminhoArquivo);
+
+            return ResponseEntity.ok("Imagem salva com sucesso: " + nomeArquivo);
+
+        } catch (IOException | java.io.IOException e) {
+            return ResponseEntity.internalServerError().body("Erro ao salvar a imagem: " + e.getMessage());
+        }
+    }
+
 }
